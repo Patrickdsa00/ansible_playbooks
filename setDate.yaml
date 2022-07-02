@@ -1,12 +1,13 @@
 ---
-- hosts: localhost, hosts
+- hosts: localhost, hostsgrp
   tasks:
-        - name: Set date time variables over "localhost" environment.
-          set_fact:
-                datevar: "{{ ansible_date_time.month + ansible_date_time.day + ansible_date_time.hour + ansible_date_time.minute + ansible_date_time.year }}"
-          run_once: true
-        - name: Execute shell "date" command in "MMDDHHmmyyyy" format on hosts.
-          command: date {{ datevar }} 
-          register: command_output
-        - debug:
-                var: command_output.stdout_lines
+    - name: Get date from localhost
+      set_fact:
+        datevar: "{{ ansible_date_time.month + ansible_date_time.day + ansible_date_time.hour + ansible_date_time.minute + ansible_date_time.year }}"
+        run_once: true
+    - name: Distribute date value to hosts
+      command: date {{ datevar }}
+      register: command_output
+      when: inventory_hostname in groups ['hostsgrp']
+    - debug:
+        var: command_output.stdout_lines
